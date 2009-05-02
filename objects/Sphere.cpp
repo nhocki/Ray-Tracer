@@ -3,10 +3,10 @@
 /* Contructors*/
 Sphere::Sphere(): Object()
 {
-    Sphere(1, Vector3(0.0,0.0,0.0), Color(1.0, 1.0, 1.0), Color(1.0, 1.0, 1.0), Color(1.0, 1.0, 1.0), 1.0);
+    Sphere(1, Vector3(0.0,0.0,0.0), Color(1.0, 1.0, 1.0), Color(1.0, 1.0, 1.0), 1.0, 1.0, 0.0, 0.0);
 }
-Sphere::Sphere(double r, Vector3 pos, Color amb, Color diff, Color spec, double shin)
-    :Object(pos, amb, diff, spec, shin)
+Sphere::Sphere(double r, Vector3 pos, Color amb, Color diff, double spec, double shin, double refr, double opaque)
+    :Object(pos, amb, diff, spec, shin, refr, opaque)
 {
     Sphere::r = r;
 }
@@ -48,6 +48,14 @@ Vector3 Sphere::getNorm(Vector3 p)
 double Sphere::getR()
 {
     return r;
+}
+
+/* Gets the color in the specified object point
+ * Used for textures only
+ */
+Color Sphere::getColor(Vector3 point)
+{
+    return Color(0,0,0);
 }
 
 

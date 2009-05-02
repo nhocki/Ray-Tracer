@@ -130,13 +130,46 @@ Vector3 Vector3::cross(const Vector3 &v) const {
 
 /* Comparisson operators
 */
+//Equalities
 bool Vector3::operator==(const Vector3 &other)
 {
-    return (x == other[0] && y == other[1] && z == other[2]);
+    double dx = fabs(x - other[0]);
+    double dy = fabs(y - other[1]);
+    double dz = fabs(z - other[2]);
+    return (dx <= eps && dy <= eps && dz <= eps);
+    //return (x == other[0] && y == other[1] && z == other[2]);
 }
 bool Vector3::operator!=(const Vector3 &other)
 {
-    return !(x == other[0] && y == other[1] && z == other[2]);
+    double dx = fabs(x - other[0]);
+    double dy = fabs(y - other[1]);
+    double dz = fabs(z - other[2]);
+    return !(dx <= eps && dy <= eps && dz <= eps);
+    //return !(x == other[0] && y == other[1] && z == other[2]);
+}
+//Inequalities
+//I considered a vector to be bigger than other
+//if all of its components are bigger
+//Mainly used to check if points are inside bounding boxes ors squares.
+bool Vector3::operator>(const Vector3 &other)
+{
+}
+bool Vector3::operator<(const Vector3 &other)
+{
+}
+bool Vector3::operator>=(const Vector3 &other)
+{
+    double dx = x - other[0] + eps;
+    double dy = y - other[1] + eps;
+    double dz = z - other[2] + eps;
+    return (dx >= 0 && dy>= 0 && dz >= 0);
+}
+bool Vector3::operator<=(const Vector3 &other)
+{
+    double dx = x - other[0] - eps;
+    double dy = y - other[1] - eps;
+    double dz = z - other[2] - eps;
+    return (dx <= 0 && dy<= 0 && dz <= 0);
 }
 
 /* Tells the iostram how to output the vector

@@ -8,8 +8,8 @@
 CPP  = g++
 CC   = gcc
 RES  = 
-OBJ  = main.o math/Vector3.o math/Ray.o objects/Sphere.o objects/Object.o Util/color.o Util/camera.o Util/light.o objects/Wall.o 
-LINKOBJ  = main.o math/Vector3.o math/Ray.o objects/Sphere.o objects/Object.o Util/color.o Util/camera.o Util/light.o objects/Wall.o 
+OBJ  = main.o math/Vector3.o math/Ray.o objects/Sphere.o objects/Object.o Util/Color.o Util/Camera.o Util/Light.o objects/Wall.o Util/Texture.o
+LINKOBJ  = main.o math/Vector3.o math/Ray.o objects/Sphere.o objects/Object.o Util/Color.o Util/Camera.o Util/Light.o objects/Wall.o Util/Texture.o
 LIBS =  -lglut
 BIN  = "RayTracer"
 RM = rm -f
@@ -39,14 +39,17 @@ objects/Sphere.o: objects/Sphere.cpp
 objects/Object.o: objects/Object.cpp
 	$(CPP) -c objects/Object.cpp -o objects/Object.o 
 
-Util/color.o: Util/color.cpp
-	$(CPP) -c Util/color.cpp -o Util/color.o 
+Util/Color.o: Util/Color.cpp
+	$(CPP) -c Util/Color.cpp -o Util/Color.o 
 
-Util/camera.o: Util/camera.cpp
-	$(CPP) -c Util/camera.cpp -o Util/camera.o 
+Util/Camera.o: Util/Camera.cpp
+	$(CPP) -c Util/Camera.cpp -o Util/Camera.o 
 
-Util/light.o: Util/light.cpp
-	$(CPP) -c Util/light.cpp -o Util/light.o 
+Util/Light.o: Util/Light.cpp
+	$(CPP) -c Util/Light.cpp -o Util/Light.o 
 
 objects/Wall.o: objects/Wall.cpp
-	$(CPP) -c objects/Wall.cpp -o objects/Wall.o 
+	$(CPP) -c objects/Wall.cpp -o objects/Wall.o
+
+Util/Texture.o: Util/Texture.cpp
+	$(CPP) -c Util/Texture.cpp -o Util/Texture.o

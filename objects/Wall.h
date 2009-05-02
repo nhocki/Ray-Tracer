@@ -12,11 +12,10 @@ private:
     Vector3 min, max;
     //Plane Ecuation
     double a,b,c,d;
-    //Texture
-    unsigned int tex;
 public:
     Wall(void);
-    Wall(Vector3 min, Vector3 max, Vector3 other, Color amb, Color diff, Color spec, double shin);
+    Wall(Vector3 min, Vector3 max, Vector3 other, Color amb, Color diff, double spec, double shin, double refr, double opaque);
+    Wall(Vector3 min, Vector3 max, Vector3 other, double shin, double refr, double opaque, Texture tex);
     
     //Getters
     Vector3 getNorm(Vector3 p);
@@ -26,6 +25,8 @@ public:
     double getB(void);
     double getC(void);
     double getD(void);
+    
+    Color getColor(Vector3 point);
     
     double rayIntersection(Ray ray);
 };

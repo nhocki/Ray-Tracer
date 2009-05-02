@@ -4,6 +4,8 @@
 #include <iostream>
 #include <math.h>
 
+const double eps = 1e-7;
+
 class Vector3
 {
 private:
@@ -40,6 +42,10 @@ public:
     //Comparison
     bool operator==(const Vector3 &other);
     bool operator!=(const Vector3 &other);
+    bool operator>(const Vector3 &other);
+    bool operator<(const Vector3 &other);
+    bool operator>=(const Vector3 &other);
+    bool operator<=(const Vector3 &other);
 };
 
 //Tells the iostream how to print the vector 3

@@ -13,7 +13,7 @@ class Sphere :public Object
     public:
     //Contructors
     Sphere(void);
-    Sphere(double r, Vector3 pos, Color amb, Color diff, Color spec, double shin);
+    Sphere(double r, Vector3 pos, Color amb, Color diff, double spec, double shin, double refr, double opaque);
 
     //Ray intersection
     double rayIntersection(Ray ray);
@@ -21,5 +21,6 @@ class Sphere :public Object
     //Getters
     Vector3 getNorm(Vector3 p);
     double getR(void);
+    Color getColor(Vector3 point);
 };
 #endif

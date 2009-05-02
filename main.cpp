@@ -1,5 +1,3 @@
-
-
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #include <OpenGL/glu.h>
@@ -10,7 +8,6 @@
 #include "GL/gl.h"
 #include "GL/glu.h"
 #endif
-
 #ifdef WIN
 #include <GL/openglut.h>
 #endif
@@ -19,16 +16,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+#include <cstring>
 #include <string>
 #include <sstream>
+#include <climits> 
 
 #include "math/Vector3.h"
 #include "math/Ray.h"
 #include "objects/Sphere.h"
 #include "objects/Wall.h"
-#include "Util/color.h"
-#include "Util/light.h"
-#include "Util/camera.h"
+#include "Util/Color.h"
+#include "Util/Texture.h"
+#include "Util/Light.h"
+#include "Util/Camera.h"
 
 using namespace std;
 
@@ -46,8 +46,8 @@ bool keyN[256];
 bool keyS[21];
 
 //Light
-Light light;
-//Global ambien light
+vector<Light> lights;
+//Global ambient light
 Color gAmbient;
 
 //Camera, corners of the plane, and camera pos
@@ -85,81 +85,114 @@ void keyboard()
 /*
     Cast a ray and return the color of the intersected object
 */
-Color castRay(Ray ray)
+Color castRay(Ray ray, int recursive)
 {
+    //ii indicates the index of the current object
     int ii = 0;
+    //Was there an intersection?
     bool intersect = false;
-    Color c(0.0, 0.0, 0.0);
+    //Is this object receiving light?
+    bool shadow = false;
+    
+    //Main color, reflection and refraction color
+    Color c(0.0, 0.0, 0.0), c2(0.0, 0.0, 0.0), c3(0.0, 0.0, 0.0);
+    
+    //Pointer to the interseted object
     Object *o;
-    double mint = INT_MAX, t, t2 = -1;
-    //Check the nearest object the ray intersects
+    
+    //Gets the minimum intersection
+    //T2 is used in shadow calculation
+    double mint = INT_MAX, t = mint, t2 = -1;
+    
+    //Check the nearest object intersected by the ray
     for(int i = 0; i < objects.size(); ++i)
     {
         t = objects[i]->rayIntersection(ray);
+        //We had an intersection!!
         if(t > 0 && t < mint)
         {
-            o = objects[i];
             mint = t;
             intersect = true;
             ii = i;
         }
     }
-    
-    //There wasnï¿½t any intersection
+    //There wasn´t any intersection, we return the background color
     if(!intersect)
         return c;
-    
-    //point of intersection
-    Vector3 p = ray.getPoint(mint);
-    //Ray from the intersection point towards the light source
-    Ray ray2(p, light.pos);
-    
-    //Ambient color calculation
-    //done before shadow calculation because the scene will look ugly otherwise
-    Color la = light.ambient;
-    Color sa = o->getAmb();
-    Color ga = gAmbient;
-    c = Color(la.r*sa.r + ga.r*sa.r, la.g*sa.g + ga.g*sa.g, la.b*sa.b + ga.b*sa.b);
-    
-    //Now check if this object is receiving light
-    for(int i = 0; i < objects.size(); ++i)
-    {
-        if(ii != i)t2 = objects[i]->rayIntersection(ray2);
-        if(t2 > 0)
-            return c;
-    }
-    //If we are here is because the object is receiving light
-    //So we use the local ilumination model on that point
-    
-    //Diffuse color calculation
-    Color ld = light.diffuse;
-    Color sd = o->getDiff();
-    Vector3 n = o->getNorm(p);
-    double dot = n.dot(ray2.getDir());
-    //double att = 120/(light.pos - p).magnitudeSquared();
-    double att = 1.0;
-    if(dot > 0)
-    {
-        c.r += att*ld.r*sd.r*dot;
-        c.g += att*ld.g*sd.g*dot;
-        c.b += att*ld.b*sd.b*dot;
         
-        //Specular color calculation
-        Color ls = light.specular;
-        Vector3 v = (posv - p).normalize();
-        Vector3 refl = -ray2.getDir() - n*2*(-ray2.getDir().dot(n));
+    //Intersected object
+    o = objects[ii];
     
-        double k = refl.dot(v);
+    //Point of intersection
+    Vector3 p = ray.getPoint(mint);
     
-        if(k > 0)
+    //Normal of the object at the specified point (used in upcoming calculations)
+    Vector3 n = o->getNorm(p);
+    
+    //Global ambient calculation, ga = Global ambient, oa = Object ambient
+    Color ga = gAmbient;
+    Color oa = (o->hasTex())?o->getColor(p):o->getAmb();
+    c = ga*oa;
+    
+    //Local ilumination model, for each light source
+    for(int i = 0; i < lights.size(); ++i, shadow = false)
+    {
+        //Ray from the intersection point towards the light source
+        Ray ray2(p, lights[i].pos);
+        //Now check if this object is receiving light
+        for(int j = 0; !shadow && j < objects.size(); ++j)
         {
-            k = pow(k, (1/o->getShin())*10);
-            c.r += ls.r*k;
-            c.g += ls.g*k;
-            c.b += ls.b*k;
+            if(ii != j)t2 = objects[j]->rayIntersection(ray2);
+            //The object is in shadows
+            if(t2 > 0)
+                shadow = true;
+        }
+        if(!shadow)
+        {
+            //Ambient color calculation, la = light ambient
+            Color la = lights[i].ambient;
+            c = c + la*oa;
+            
+            //Diffuse color calculation, ld = light diffuse, od = object diffuse
+            Color ld = lights[i].diffuse;
+            Color od = (o->hasTex())?o->getColor(p):o->getDiff();
+            
+            //dot is the dot product between the normal and the ray
+            double dot = n.dot(ray2.getDir());
+            //double att = 100/(light.pos - p).magnitudeSquared();
+            double att = 1.0;
+            if(dot > 0)
+            {
+                c = c + ld*od*att*dot;
+                //Specular color calculation
+                Color ls = lights[i].specular;
+                Vector3 v = ray.getDir();
+                Vector3 l = ray2.getDir();
+                Vector3 r = l - n*2*l.dot(n);
+                double k = v.dot(r);
+                if(k > 0)
+                    c = c + ls*pow(k, 20.0)*o->getSpec();
+            }
         }
     }
     
+    //Calculates the reflection color
+    double shin = o->getShin();
+    if(recursive < 5 && shin > 0.01)
+    {
+        Vector3 dir2 = ray.getDir() - n*2*(ray.getDir().dot(n));
+        Vector3 dest = p+dir2;
+        Ray ray3(p, dest);
+        c2 = castRay(ray3, recursive+1);
+    }
+    //Calculates the refraction color
+    double op = o->getOpaque();
+    if(recursive < 5 && op > 0.01)
+    {
+    }
+    
+    //Adds the three colors together
+    c = c+c2*shin;
     return c;
 }
 
@@ -167,7 +200,6 @@ void draw()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    
     //Camera calculation
     posv = Vector3(0.0, 0.0, 10.0);
     double h = 10*tan(3.1415926536/8);
@@ -175,23 +207,22 @@ void draw()
     minv = Vector3(-w, -h, 0);
     maxv = Vector3(w, h, 0);
     
-    stringstream ss;
-    ss.clear();
-    ss << "width: " << w << "h: " << h << endl;
-    glutSetWindowTitle(ss.str().c_str());
-    
+    glRasterPos2f(0.0,0.0);
     //Calculates all the rays
     for(int i = 0; i < height; ++i)
     {
         for(int j = 0; j < width; ++j)
         {
             Ray ray(posv, minv + Vector3(2*w*j/width, 2*h*i/height, 0));
-            pixels[i*800 + j] = castRay(ray);
+            pixels[i*800 + j] = castRay(ray, 1);
+            //Slow but cooler method
+            /*Color c = castRay(ray, 1);;
+            float as[3] = {c.r, c.g, c.b};
+            glDrawPixels(1,1,GL_RGB,GL_FLOAT,as);
+            glRasterPos2f((float)j,(float)i);*/
         }
     }
-
-    glDrawPixels(width,height,GL_RGB,GL_FLOAT,pixels);
-    
+    glDrawPixels(width,height,GL_RGB,GL_FLOAT,pixels); 
     glutSwapBuffers();
 }
 
@@ -206,18 +237,16 @@ void resize(int w, int h)
         h = 1;
         
     width = w, height = h;
+    pixels = new Color[width*height];
+    memset(pixels, 0, sizeof(GLfloat)*3*width*height);
   
-    /*float ratio = 1.0* w / h;
-  
-    // Reset the coordinate system before modifying
+    //Resets the matrices. We don´ta want any transormations
+    //So I create an orthographic matrix with the size of the screen
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-  
-    // Set the viewport to be the entire window
-    glViewport(0, 0, w, h);
-  
-    // Set the correct perspective.
-    gluPerspective(45,ratio,1,500);*/
+    gluOrtho2D(0.0,(GLfloat)width, 0.0,(GLfloat)height);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 }
 
 /*
@@ -229,29 +258,52 @@ void init()
     //Resets the pixels
     memset(pixels, 0, sizeof(GLfloat)*3*width*height);
     
+    //SET 1
     //Add some spheres
-    objects.push_back(new Sphere(1, Vector3(-3, 2, -5), Color(1.0, 0, 0), Color(1.0, 0, 0), Color(1.0, 0, 0), 1.0));
-    objects.push_back(new Sphere(1, Vector3(3, 0, -5), Color(1.0, 0, 1.0), Color(1.0, 0, 1.0), Color(1.0, 0, 1.0), 1.0));
-    objects.push_back(new Sphere(1, Vector3(3, 4, -5), Color(1.0, 1.0, 0), Color(1.0, 1.0, 0), Color(1.0, 1.0, 0.0), 1.0));
-    objects.push_back(new Sphere(1, Vector3(1, 0, -3), Color(0, 0, 1.0), Color(0.0, 0, 1.0), Color(0.0, 0, 1.0), 1.0));
+    objects.push_back(new Sphere(1, Vector3(-3, -3, -10), Color(1.0, 0, 0), Color(1.0, 0, 0), 1, 0.6, 0.0, 0.0));
+    objects.push_back(new Sphere(1, Vector3(3, 0, -5), Color(1.0, 0, 1.0), Color(1.0, 0, 1.0), 1, 0.3, 0.0, 0.0));
+    objects.push_back(new Sphere(1, Vector3(3, 4, -5), Color(1.0, 1.0, 0), Color(1.0, 1.0, 0), 1, 0.2, 0.0, 0.0));
+    objects.push_back(new Sphere(1, Vector3(1, 0, -3), Color(0, 0, 1.0), Color(0.0, 0, 1.0), 1, 0.3, 0.0, 0.0));
     
     //Add a wall
-    objects.push_back(new Wall(Vector3(-20.0f, -5.0f, 20.0f), Vector3(20.0f, -5.0f, -20.0f), Vector3(20.0f, -5.0f, 20.0f), 
-                                    Color(0.8,0.8,0.8), Color(0.8,0.8,0.8), Color(0.8,0.8,0.8), 1));
+    objects.push_back(new Wall(Vector3(-7.0f, -5.0f, -17.0f), Vector3(7.0f, -5.0f, -5.0f), Vector3(-7.0f, -5.0f, -5.0f), 
+                               0.2, 0.0, 0.0, Texture()));
+    objects.push_back(new Wall(Vector3(-6.0f, -4.5f, -17.0f), Vector3(8.0f, 5.0f, -17.0f), Vector3(8.0f, -4.5f, -17.0f), 
+                               Color(0.5,0.5,0.5), Color(0.5,0.5,0.5), 0.3, 0.3, 0.0, 0.0));
+                               
+                               
+    //TEST
+    /*objects.push_back(new Wall(Vector3(-5.0f, -4.4f, -5.0f), Vector3(5, -4.4f, 5.0), Vector3(-5, -4.4f, 5.0f), 
+                               Color(0.4,0.3,0.3), Color(0.4,0.3,0.3), 0.1, 0.0, 0.0, 0.0));
+    objects.push_back(new Sphere(2.5, Vector3(1, 0.8, -6), Color(0.7, 0.7, 0.7), Color(0.7, 0.7, 0.7), 1, 0.6, 0.0, 0.0));
+    objects.push_back(new Sphere(2, Vector3(-5.5, 0.5, -10), Color(0.7, 0.7, 1), Color(0.7, 0.7, 1)*0.2, 1, 1, 0.0, 0.0));*/
+                               
+    //SET 2
+    /*objects.push_back(new Sphere(1, Vector3(0, -3, -10), Color(1.0, 0, 0), Color(1.0, 0, 0), 1, 1, 0.0, 0.0));
+    objects.push_back(new Wall(Vector3(-7.0f, -5.0f, -17.0f), Vector3(7.0f, -5.0f, -5.0f), Vector3(-7.0f, -5.0f, -5.0f), 
+                               0.2, 0.0, 0.0, Texture()));*/
     
-    //light, and global ambient
-    light = Light(Vector3(-3.0, 5.0, 5.0), Color(0.0, 0.0, 0.0), Color(0.7, 0.7, 0.7), Color(0.8, 0.8, 0.8), GLOBAL);
-    //light = Light(Vector3(5.0, 0, -5.0), Color(0.0, 0.0, 0.0), Color(0.7, 0.7, 0.7), Color(0.8, 0.8, 0.8), GLOBAL);
-    gAmbient = Color(0.25, 0.25, 0.25);
+    //Lights, and global ambient
+    lights.push_back(Light(Vector3(-5, 3.0, 2.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.6f), Color(0.7f, 0.7f, 0.7f), GLOBAL));
+    lights.push_back(Light(Vector3(5, 2.0, 3.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.8f), Color(0.6f, 0.6f, 0.8f), GLOBAL));
+    gAmbient = Color(0.00, 0.00, 0.00);
 }
 
 /*
-Initializes OpenGL
+Initializes OpenGL|
 */
 void initGl()
 {
     glShadeModel (GL_SMOOTH);
     glEnable(GL_CULL_FACE);
+    
+    //Resets the matrices. We don´ta want any transormations
+    //So we created an orthographic matrix with the size of the screen
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0.0,(GLfloat)width, 0.0,(GLfloat)height);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 }
 
 int main(int argc, char *argv[])
@@ -263,7 +315,7 @@ int main(int argc, char *argv[])
 
     glutCreateWindow("Ray Tracer");
 
-    //Can't allow reshape, the program will die of all the calculations
+    //Reshape not working
     //glutReshapeFunc(resize);
     
     glutDisplayFunc(draw);
