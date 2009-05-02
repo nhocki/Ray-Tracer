@@ -2,7 +2,7 @@
 #define OBJECT_TRACER
 #include "../math/Vector3.h"
 #include "../math/Ray.h"
-#include "../Util/Color.h"
+#include "../Util/color.h"
 
 class Object
 {
