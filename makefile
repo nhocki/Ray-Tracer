@@ -1,9 +1,12 @@
 # Project: Ray Tracer
-# Makefile created by Dev-C++ 4.9.9.2
+# Makefile
+
+# Nicolás Hock
+# Crisitan Isaza
+# Alejandro Peláez
 
 CPP  = g++
 CC   = gcc
-#WINDRES = windres.exe
 RES  = 
 OBJ  = main.o math/Vector3.o math/Ray.o objects/Sphere.o objects/Object.o Util/color.o Util/camera.o Util/light.o objects/Wall.o 
 LINKOBJ  = main.o math/Vector3.o math/Ray.o objects/Sphere.o objects/Object.o Util/color.o Util/camera.o Util/light.o objects/Wall.o 
