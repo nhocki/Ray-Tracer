@@ -32,6 +32,9 @@
 
 using namespace std;
 
+//Maximum recursion
+const int MAX_RECURSION = 4;
+
 //Window dimensions
 int width = 800, height = 600;
 
@@ -131,7 +134,7 @@ Color castRay(Ray ray, int recursive)
     
     //Global ambient calculation, ga = Global ambient, oa = Object ambient
     Color ga = gAmbient;
-    Color oa = (o->hasTex())?o->getColor(p):o->getAmb();
+    Color oa = (o->hasTex())?o->getColor(p):o->getMat().color;
     c = ga*oa;
     
     //Local ilumination model, for each light source
@@ -140,11 +143,13 @@ Color castRay(Ray ray, int recursive)
         //Ray from the intersection point towards the light source
         Ray ray2(p, lights[i].pos);
         //Now check if this object is receiving light
+        //t value where the light source is
+        double tt = ray2.getT(lights[i].pos);
         for(int j = 0; !shadow && j < objects.size(); ++j)
         {
             if(ii != j)t2 = objects[j]->rayIntersection(ray2);
             //The object is in shadows
-            if(t2 > 0)
+            if(t2 > 0 && t2 <= tt)
                 shadow = true;
         }
         if(!shadow)
@@ -155,7 +160,7 @@ Color castRay(Ray ray, int recursive)
             
             //Diffuse color calculation, ld = light diffuse, od = object diffuse
             Color ld = lights[i].diffuse;
-            Color od = (o->hasTex())?o->getColor(p):o->getDiff();
+            Color od = (o->hasTex())?o->getColor(p):o->getMat().color*o->getMat().diff;
             
             //dot is the dot product between the normal and the ray
             double dot = n.dot(ray2.getDir());
@@ -171,14 +176,14 @@ Color castRay(Ray ray, int recursive)
                 Vector3 r = l - n*2*l.dot(n);
                 double k = v.dot(r);
                 if(k > 0)
-                    c = c + ls*pow(k, 20.0)*o->getSpec();
+                    c = c + ls*pow(k, 20.0)*o->getMat().spec;
             }
         }
     }
     
     //Calculates the reflection color
-    double shin = o->getShin();
-    if(recursive < 5 && shin > 0.01)
+    double refl = o->getMat().refl;
+    if(recursive < MAX_RECURSION && refl > 0.01)
     {
         Vector3 dir2 = ray.getDir() - n*2*(ray.getDir().dot(n));
         Vector3 dest = p+dir2;
@@ -186,13 +191,13 @@ Color castRay(Ray ray, int recursive)
         c2 = castRay(ray3, recursive+1);
     }
     //Calculates the refraction color
-    double op = o->getOpaque();
-    if(recursive < 5 && op > 0.01)
+    double refr = o->getMat().refr;
+    if(recursive < MAX_RECURSION && refr > 0.01)
     {
     }
     
     //Adds the three colors together
-    c = c+c2*shin;
+    c = c+c2*refl;
     return c;
 }
 
@@ -260,32 +265,34 @@ void init()
     
     //SET 1
     //Add some spheres
-    objects.push_back(new Sphere(1, Vector3(-3, -3, -10), Color(1.0, 0, 0), Color(1.0, 0, 0), 1, 0.6, 0.0, 0.0));
-    objects.push_back(new Sphere(1, Vector3(3, 0, -5), Color(1.0, 0, 1.0), Color(1.0, 0, 1.0), 1, 0.3, 0.0, 0.0));
-    objects.push_back(new Sphere(1, Vector3(3, 4, -5), Color(1.0, 1.0, 0), Color(1.0, 1.0, 0), 1, 0.2, 0.0, 0.0));
-    objects.push_back(new Sphere(1, Vector3(1, 0, -3), Color(0, 0, 1.0), Color(0.0, 0, 1.0), 1, 0.3, 0.0, 0.0));
+    objects.push_back(new Sphere(1, Vector3(-3, -4, -11), 
+                                 Material(Color(1.0,0,0), 0.8, 0.8, 0.2, 0.5, 1.2)));
+    objects.push_back(new Sphere(1.3, Vector3(5, -3, -13), 
+                                 Material(Color(0,0,1.0), 0.7, 0.75, 0.4, 0.5, 1.2)));
+    objects.push_back(new Sphere(0.7, Vector3(0, -4.2, -7), 
+                                 Material(Color(0,1.0,0.0), 0.5, 0.6, 0.7, 0.5, 1.2)));
+    objects.push_back(new Sphere(0.8, Vector3(0, -1, -9), 
+                                 Material(Color(1.0,1.0,0.0), 0.4, 0.7, 0.8, 0.5, 1.2)));
+    objects.push_back(new Sphere(0.8, Vector3(2, -4.2, -11), 
+                                 Material(Color(1.0,1.0,1.0), 0.0, 0.1, 1, 0.5, 1.2)));
+
     
     //Add a wall
-    objects.push_back(new Wall(Vector3(-7.0f, -5.0f, -17.0f), Vector3(7.0f, -5.0f, -5.0f), Vector3(-7.0f, -5.0f, -5.0f), 
-                               0.2, 0.0, 0.0, Texture()));
-    objects.push_back(new Wall(Vector3(-6.0f, -4.5f, -17.0f), Vector3(8.0f, 5.0f, -17.0f), Vector3(8.0f, -4.5f, -17.0f), 
-                               Color(0.5,0.5,0.5), Color(0.5,0.5,0.5), 0.3, 0.3, 0.0, 0.0));
-                               
-                               
-    //TEST
-    /*objects.push_back(new Wall(Vector3(-5.0f, -4.4f, -5.0f), Vector3(5, -4.4f, 5.0), Vector3(-5, -4.4f, 5.0f), 
-                               Color(0.4,0.3,0.3), Color(0.4,0.3,0.3), 0.1, 0.0, 0.0, 0.0));
-    objects.push_back(new Sphere(2.5, Vector3(1, 0.8, -6), Color(0.7, 0.7, 0.7), Color(0.7, 0.7, 0.7), 1, 0.6, 0.0, 0.0));
-    objects.push_back(new Sphere(2, Vector3(-5.5, 0.5, -10), Color(0.7, 0.7, 1), Color(0.7, 0.7, 1)*0.2, 1, 1, 0.0, 0.0));*/
-                               
-    //SET 2
-    /*objects.push_back(new Sphere(1, Vector3(0, -3, -10), Color(1.0, 0, 0), Color(1.0, 0, 0), 1, 1, 0.0, 0.0));
-    objects.push_back(new Wall(Vector3(-7.0f, -5.0f, -17.0f), Vector3(7.0f, -5.0f, -5.0f), Vector3(-7.0f, -5.0f, -5.0f), 
-                               0.2, 0.0, 0.0, Texture()));*/
+    objects.push_back(new Wall(Vector3(-7.0f, -5.0f, -17.0f), Vector3(7.0f, -5.0f, -5.0f), 
+                               Vector3(-7.0f, -5.0f, -5.0f), 
+                               Material(Color(0,0,0.0), 0.7, 0.4, 0.4, 0.7, 1.2),
+                               Texture()));
+    objects.push_back(new Wall(Vector3(-6.0f, -4.5f, -17.0f), Vector3(8.0f, 5.0f, -17.0f), 
+                               Vector3(8.0f, -4.5f, -17.0f),
+                               Material(Color(0.7,0.7,0.7), 0.7, 0.4, 0.6, 0.5, 1.2)));
+    
+    objects.push_back(new Wall(Vector3(-7.5f, -5.0f, -18.0f), Vector3(-7.5f, 5.0f, -5.0f), 
+                               Vector3(-7.5f, 5.0f, -18.0f),
+                               Material(Color(0.3,0.3,0.7), 0.7, 0.4, 0.6, 0.5, 1.2)));
     
     //Lights, and global ambient
     lights.push_back(Light(Vector3(-5, 3.0, 2.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.6f), Color(0.7f, 0.7f, 0.7f), GLOBAL));
-    lights.push_back(Light(Vector3(5, 2.0, 3.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.8f), Color(0.6f, 0.6f, 0.8f), GLOBAL));
+    lights.push_back(Light(Vector3(5, 1.0, 3.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.8f), Color(0.6f, 0.6f, 0.8f), GLOBAL));
     gAmbient = Color(0.00, 0.00, 0.00);
 }
 

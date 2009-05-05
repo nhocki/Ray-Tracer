@@ -6,8 +6,8 @@ Wall::Wall()
     //Wall(Vector3(-20.0f, 0.0f, 20.0f), Vector3(20.0f, 0.0f, -20.0f), Vector3(20.0f, 0.0f, 20.0f), Color(1,1,1), Color(1,1,1), Color(1,1,1), 1);
 }
 
-Wall:: Wall(Vector3 min, Vector3 max, Vector3 other, Color amb, Color diff, double spec, double shin, double refr, double opaque)
-    :Object((min+max)/2, amb, diff, spec, shin, refr, opaque)
+Wall:: Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, bool emmit)
+    :Object((min+max)/2, mat, emmit)
 {
     Wall::min = min;
     Wall::max = max;
@@ -20,8 +20,8 @@ Wall:: Wall(Vector3 min, Vector3 max, Vector3 other, Color amb, Color diff, doub
     d = -(a*min[0] + b*min[1] + c*min[2]);
 }
 
-Wall:: Wall(Vector3 min, Vector3 max, Vector3 other, double shin, double refr, double opaque, Texture tex)
-    :Object((min+max)/2, shin, refr, opaque, tex)
+Wall:: Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, Texture tex, bool emmit)
+    :Object((min+max)/2, mat, tex, emmit)
 {
     Wall::min = min;
     Wall::max = max;

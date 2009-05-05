@@ -1,28 +1,51 @@
 #include "Object.h"
 
+/*
+  Class Material
+ */
+
+/* Contructor*/
+Material::Material()
+{
+    color = Color(0.0,0.0,0.0);
+    diff = 1.0;
+    spec = 0.0;
+    refl = 0.0;
+    refr = 0.0;
+    rIndex = 1.0;
+}
+Material::Material(Color color, double diff, double spec, double refl, double refr, double rIndex)
+{
+    Material::color = color;
+    Material::diff = diff;
+    Material::spec = spec;
+    Material::refl = refl;
+    Material::refr = refr;
+    Material::rIndex = rIndex;
+}
+
+
+/* 
+   Class Object
+ */
+
 /* Contructors */
 Object::Object()
 {
-    //Object(Vector3(0,0,0), Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 1.0f), 1.0);
 }
-Object::Object(Vector3 pos, Color amb, Color diff, double spec, double shin, double refr, double opaque)
+Object::Object(Vector3 pos, Material mat, bool emmit)
 {
     Object::pos = pos;
-    Object::amb = amb;
-    Object::diff = diff;
-    Object::spec = spec;
-    Object::shin = shin;
-    Object::refr = refr;
-    Object::opaque = opaque;
+    Object::mat = mat;
+    Object::emmit = emmit;  
     hasT = false;
 }
-Object::Object(Vector3 pos, double shin, double refr, double opaque, Texture tex)
+Object::Object(Vector3 pos, Material mat, Texture tex, bool emmit)
 {
     Object::pos = pos;
-    Object::shin = shin;
+    Object::mat = mat;
     Object::tex = tex;
-    Object::refr = refr;
-    Object::opaque = opaque;
+    Object::emmit = emmit;
     hasT = true;
 }
 
@@ -42,23 +65,12 @@ Vector3 Object::getPos()
 {
     return pos;
 }
-Color Object::getAmb()
+Material Object::getMat()
 {
-    return amb;
+    return mat;
 }
-Color Object::getDiff()
+/* Emmit light? */
+bool Object::emmitLight()
 {
-    return diff;
-}
-double Object::getSpec()
-{
-    return spec;
-}
-double Object::getShin(void)
-{
-    return shin;
-}
-double Object::getOpaque(void)
-{
-    return opaque;
+    return emmit;
 }

@@ -14,8 +14,8 @@ private:
     double a,b,c,d;
 public:
     Wall(void);
-    Wall(Vector3 min, Vector3 max, Vector3 other, Color amb, Color diff, double spec, double shin, double refr, double opaque);
-    Wall(Vector3 min, Vector3 max, Vector3 other, double shin, double refr, double opaque, Texture tex);
+    Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, bool emmit=false);
+    Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, Texture tex, bool emit=false);
     
     //Getters
     Vector3 getNorm(Vector3 p);

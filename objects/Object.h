@@ -5,25 +5,38 @@
 #include "../Util/Color.h"
 #include "../Util/Texture.h"
 
+/*
+  Material struct
+  Saves information about the object color, reflection, refraction, etc
+ */
+struct Material
+{
+  Color color;
+  double diff, spec, refl, refr, rIndex;
+  Material();
+  Material(Color color, double diff, double spec, double refl, double refr, double rIndex);
+};
+
+/*
+  Abstract class that every object must implement
+ */
 class Object
 {
     protected:
     //Position
     Vector3 pos;
     //materials
-    Color amb, diff;
-    double shin, spec;
-    //Refraction
-    double opaque;
-    double refr;
+    Material mat;
     //Texture
     bool hasT;
     Texture tex;
+    //Emit light?
+    bool emmit;
     
     public:
     Object();
-    Object(Vector3 pos, Color amb, Color diff, double spec, double Shin, double refr, double opaque);
-    Object(Vector3 pos, double Shin, double refr, double opaque, Texture tex);
+    Object(Vector3 pos, Material mat, bool emmit=false);
+    Object(Vector3 pos, Material mat, Texture tex, bool emmit=false);
     virtual double rayIntersection(Ray ray)=0;
     virtual Vector3 getNorm(Vector3 p)=0;
     
@@ -34,11 +47,8 @@ class Object
     
     //Getters
     Vector3 getPos(void);
-    Color getAmb();
-    Color getDiff();
-    double getSpec();
-    double getShin(void);
-    double getOpaque(void);
+    Material getMat(void);
+    bool emmitLight(void);
 };
 
 #endif

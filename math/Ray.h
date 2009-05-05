@@ -15,6 +15,7 @@ class Ray
         Vector3 getDir(void);
         Vector3 getnnDir(void);
         Vector3 getPoint(double t);
+        double getT(Vector3 point);
 };
 
 #endif
