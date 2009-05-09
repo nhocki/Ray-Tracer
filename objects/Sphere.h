@@ -18,6 +18,9 @@ class Sphere :public Object
     //Ray intersection
     double rayIntersection(Ray ray);
 
+    //Is the point inside
+    bool isInside(Vector3 point);
+
     //Getters
     Vector3 getNorm(Vector3 p);
     double getR(void);

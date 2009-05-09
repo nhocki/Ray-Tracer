@@ -48,6 +48,12 @@ Vector3 Wall::getNorm(Vector3 p)
     return n;
 }
 
+//Is the point inside
+bool Wall::isInside(Vector3 point)
+{
+    return false;
+}
+
 /* Gets the color in the specified object point
  * Used for textures only
  */

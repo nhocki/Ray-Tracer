@@ -40,6 +40,12 @@ double Sphere::rayIntersection(Ray ray)
     return (t1 < t2)?t1:t2;
 }
 
+bool Sphere::isInside(Vector3 point)
+{
+    double dist = (point - pos).magnitudeSquared();
+    return (dist <= r*r);
+}
+
 /* Getters */
 Vector3 Sphere::getNorm(Vector3 p)
 {

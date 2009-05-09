@@ -17,6 +17,9 @@ public:
     Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, bool emmit=false);
     Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, Texture tex, bool emit=false);
     
+    //Is the point inside
+    bool isInside(Vector3 point);
+    
     //Getters
     Vector3 getNorm(Vector3 p);
     Vector3 getMin(void);

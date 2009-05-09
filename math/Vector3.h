@@ -4,7 +4,7 @@
 #include <iostream>
 #include <math.h>
 
-const double eps = 1e-7;
+const double eps = 1e-9;
 
 class Vector3
 {
