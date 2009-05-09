@@ -315,7 +315,7 @@ void init()
     objects.push_back(new Sphere(1, Vector3(-3, -4, -11), 
                                  Material(Color(1.0,0,0), 0.95, 0.8, 0.05, 0.0, 1.2)));
     objects.push_back(new Sphere(1.1, Vector3(-1.2, -3.5, -7), 
-                                 Material(Color(0,0,1.0), 0.0, 0.3x, 0.0, 1.0, 1.51714)));
+                                 Material(Color(0,0,1.0), 0.0, 0.3, 0.0, 1.0, 1.51714)));
     objects.push_back(new Sphere(0.8, Vector3(0, -1, -9), 
                                  Material(Color(1.0,1.0,0.0), 0.4, 0.7, 0.8, 0.0, 1.2)));
     objects.push_back(new Sphere(0.8, Vector3(2, -4.2, -11), 
