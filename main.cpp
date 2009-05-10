@@ -331,7 +331,7 @@ void init()
     memset(pixels, 0, sizeof(GLfloat)*3*width*height);
 
     //Initializes the camera
-    camera = Camera(PI/4, (double)width, (double)height, Vector3(0,0,10), 
+    camera = Camera(PI/4, (double)width, (double)height, Vector3(0,0,15), 
                     Vector3(0,0,0), Vector3(0,1,0));
     
     //SET 1

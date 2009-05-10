@@ -22,7 +22,7 @@ Camera::Camera(double fovx, double width, double height, Vector3 pos, Vector3 lo
     Vector3 dest = pos + w*dist;
 
     //View rectangle calculation
-    vw = 10*tan(fovx/2);
+    vw = dist*tan(fovx/2);
     vh = vw*(height/width);
     c = dest + (-u)*vw + (-v)*vh;
 }
