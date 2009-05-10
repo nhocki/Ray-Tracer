@@ -8,8 +8,8 @@
 CPP  = g++
 CC   = gcc
 RES  = 
-OBJ  = main.o math/Vector3.o math/Ray.o objects/Sphere.o objects/Object.o Util/Color.o Util/Camera.o Util/Light.o objects/Wall.o Util/Texture.o
-LINKOBJ  = main.o math/Vector3.o math/Ray.o objects/Sphere.o objects/Object.o Util/Color.o Util/Camera.o Util/Light.o objects/Wall.o Util/Texture.o
+OBJ  = main.o math/Vector3.o math/Ray.o objects/Sphere.o objects/Object.o Util/Color.o Util/Camera.o Util/Light.o objects/Wall.o Util/Texture.o Util/Timer.o
+LINKOBJ  = main.o math/Vector3.o math/Ray.o objects/Sphere.o objects/Object.o Util/Color.o Util/Camera.o Util/Light.o objects/Wall.o Util/Texture.o Util/Timer.o
 LIBS =  -lglut
 BIN  = "RayTracer"
 RM = rm -f
@@ -53,3 +53,6 @@ objects/Wall.o: objects/Wall.cpp
 
 Util/Texture.o: Util/Texture.cpp
 	$(CPP) -c Util/Texture.cpp -o Util/Texture.o
+
+Util/Timer.o: Util/Timer.cpp
+	$(CPP) -c Util/Timer.cpp -o Util/Timer.o

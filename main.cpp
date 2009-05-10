@@ -29,11 +29,12 @@
 #include "Util/Texture.h"
 #include "Util/Light.h"
 #include "Util/Camera.h"
+#include "Util/Timer.h"
 
 using namespace std;
 
 //Maximum recursion
-const int MAX_RECURSION = 4;
+const int MAX_RECURSION = 5;
 
 //Window dimensions
 int width = 800, height = 600;
@@ -51,15 +52,19 @@ Color *pixels;
 bool keyN[256];
 bool keyS[21];
 
+//Timer
+Timer timer;
+
+//Number of rays
+int nrays;
+
 //Light
 vector<Light> lights;
 //Global ambient light
 Color gAmbient;
 
 //Camera, corners of the plane, and camera pos
-Vector3 minv;
-Vector3 maxv;
-Vector3 posv;
+Camera camera;
 
 //Keyboard functions
 void keyDown(unsigned char key, int x, int y)
@@ -93,6 +98,9 @@ void keyboard()
 */
 Color castRay(Ray ray, int recursive, double &dst)
 {
+	 //Increase the ray counter
+    nrays++;
+
     //Was there an intersection?
     bool intersect = false;
     //Is this object receiving light?
@@ -246,21 +254,18 @@ void draw()
     if(!redraw)return;
 
     glClear(GL_COLOR_BUFFER_BIT);
-
-    //Camera calculation
-    posv = Vector3(0.0, 0.0, 10.0);
-    double h = 10*tan(3.1415926536/8);
-    double w = h*width/height;
-    minv = Vector3(-w, -h, 0);
-    maxv = Vector3(w, h, 0);
     
+	//Current time
+    timer.start();
+    double start = timer.getElapsedTime();
+
     glRasterPos2f(0.0,0.0);
     //Calculates all the rays
     for(int i = 0; i < height; ++i)
     {
         for(int j = 0; j < width; ++j)
         {
-            Ray ray(posv, minv + Vector3(2*w*j/width, 2*h*i/height, 0));
+            Ray ray = camera.getRay(j, i);
             double dist;
             pixels[i*width + j] = castRay(ray, 1, dist);
             //Slow but cooler method
@@ -272,8 +277,23 @@ void draw()
     }
     glDrawPixels(width,height,GL_RGB,GL_FLOAT,pixels); 
     glutSwapBuffers();
+
+	//Final time
+    double finish = timer.getElapsedTime();
+
+    //Set the window title
+    double t = (finish-start)/1000000;
+    stringstream ss;
+    ss << "Width: " << width;
+    ss << "Height: "<< height;
+    ss << " Number of primitives: " << objects.size();
+    ss << " Rays casted: " << nrays;
+    ss << " Render time: " << t << "s";
+    glutSetWindowTitle(ss.str().c_str());
     
     redraw = false;
+	nrays = 0;
+    timer.stop();
 }
 
 /*
@@ -309,6 +329,10 @@ void init()
     pixels = new Color[width*height];
     //Resets the pixels
     memset(pixels, 0, sizeof(GLfloat)*3*width*height);
+
+    //Initializes the camera
+    camera = Camera(PI/4, (double)width, (double)height, Vector3(0,0,10), 
+                    Vector3(0,0,0), Vector3(0,1,0));
     
     //SET 1
     //Add some spheres
@@ -322,7 +346,7 @@ void init()
                                  Material(Color(1.0,1.0,1.0), 0.0, 0.1, 1, 0.0, 1.2)));
 
     
-    //Add a wall
+    //Add a wallx
     objects.push_back(new Wall(Vector3(-7.0f, -5.0f, -17.0f), Vector3(7.0f, -5.0f, -5.0f), 
                                Vector3(-7.0f, -5.0f, -5.0f), 
                                Material(Color(0,0,0.0), 0.7, 0.4, 0.4, 0.7, 1.2),
@@ -340,6 +364,8 @@ void init()
     lights.push_back(Light(Vector3(-5, 3.0, 2.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.6f), Color(0.7f, 0.7f, 0.7f), GLOBAL));
     lights.push_back(Light(Vector3(5, 1.0, 3.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.8f), Color(0.6f, 0.6f, 0.8f), GLOBAL));
     gAmbient = Color(0.00, 0.00, 0.00);
+
+	nrays = 0;
 }
 
 /*

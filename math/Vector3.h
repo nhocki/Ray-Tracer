@@ -4,6 +4,7 @@
 #include <iostream>
 #include <math.h>
 
+const double PI = 2*acos(0);
 const double eps = 1e-9;
 
 class Vector3
