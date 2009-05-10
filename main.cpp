@@ -40,7 +40,7 @@ const int MAX_RECURSION = 5;
 int width = 800, height = 600;
 
 //Scene needs to be redrawn
-bool redraw = true;
+bool redraw = false;
 
 //Scene objects
 vector<Object*> objects;
@@ -63,8 +63,9 @@ vector<Light> lights;
 //Global ambient light
 Color gAmbient;
 
-//Camera, corners of the plane, and camera pos
-Camera camera;
+//Cameras, corners of the plane, and camera pos
+vector<Camera> cameras;
+int currCamera;
 
 //Keyboard functions
 void keyDown(unsigned char key, int x, int y)
@@ -86,12 +87,18 @@ void keySUp(int key, int x, int y)
 
 /*
 Reads the keyboard state and updates
-the simulation state
-*/
+the simulation state*/
 void keyboard()
 {
     if(keyN[27])exit(0);
+    if(keyN['c'] || keyN['C'])
+    {
+        redraw=true;
+        currCamera=(currCamera+1)%cameras.size();
+        keyN['c'] = keyN['C'] = false;
+    }
 }
+
 
 /*
     Cast a ray and return the color of the intersected object
@@ -254,6 +261,7 @@ void draw()
     if(!redraw)return;
 
     glClear(GL_COLOR_BUFFER_BIT);
+    glutSwapBuffers();
     
 	//Current time
     timer.start();
@@ -265,14 +273,9 @@ void draw()
     {
         for(int j = 0; j < width; ++j)
         {
-            Ray ray = camera.getRay(j, i);
+            Ray ray = cameras[currCamera].getRay(j, i);
             double dist;
             pixels[i*width + j] = castRay(ray, 1, dist);
-            //Slow but cooler method
-            /*Color c = castRay(ray, 1);;
-            float as[3] = {c.r, c.g, c.b};
-            glDrawPixels(1,1,GL_RGB,GL_FLOAT,as);
-            glRasterPos2f((float)j,(float)i);*/
         }
     }
     glDrawPixels(width,height,GL_RGB,GL_FLOAT,pixels); 
@@ -294,6 +297,12 @@ void draw()
     redraw = false;
 	nrays = 0;
     timer.stop();
+}
+
+void update()
+{
+    keyboard();
+    draw();
 }
 
 /*
@@ -321,6 +330,7 @@ void resize(int w, int h)
     redraw = true;
 }
 
+
 /*
     Initializes some stuff
 */
@@ -330,10 +340,15 @@ void init()
     //Resets the pixels
     memset(pixels, 0, sizeof(GLfloat)*3*width*height);
 
-    //Initializes the camera
-    camera = Camera(PI/4, (double)width, (double)height, Vector3(0,0,15), 
-                    Vector3(0,0,0), Vector3(0,1,0));
-    
+    //Initializes some cameras
+    cameras.push_back(Camera(PI/4, (double)width, (double)height, Vector3(0,0,10), 
+                             Vector3(0,0,0), Vector3(0,1,0)));
+    cameras.push_back(Camera(PI/4, (double)width, (double)height, Vector3(25,0,0), 
+                             Vector3(0,0,-10), Vector3(0,1,0)));
+    cameras.push_back(Camera(PI/4, (double)width, (double)height, Vector3(25,0,-10), 
+                             Vector3(0,0,-10), Vector3(0,1,0)));
+    currCamera = 0;
+
     //SET 1
     //Add some spheres
     objects.push_back(new Sphere(1, Vector3(-3, -4, -11), 
@@ -404,7 +419,7 @@ int main(int argc, char *argv[])
     glutKeyboardUpFunc(keyUp);
     glutSpecialUpFunc(keySUp);
     
-    //glutIdleFunc(idle);
+    glutIdleFunc(update);
     initGl();
     init();
 

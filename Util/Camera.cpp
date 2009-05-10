@@ -1,8 +1,5 @@
 #include "Camera.h"
 
-#include <iostream>
-using namespace std;
-
 Camera::Camera(){}
 
 Camera::Camera(double fovx, double width, double height, Vector3 pos, Vector3 lookAt, Vector3 up)
