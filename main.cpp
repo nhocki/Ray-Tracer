@@ -70,42 +70,42 @@ int currCamera;
 //Keyboard functions
 void keyDown(unsigned char key, int x, int y)
 {
-  keyN[key] = true;
+    keyN[key] = true;
 }
 void keyUp(unsigned char key, int x, int y)
 {
-  keyN[key] = false;
+    keyN[key] = false;
 }
 void keySDown(int key, int x, int y)
 {
-  keyS[key] = true;
+    keyS[key] = true;
 }
 void keySUp(int key, int x, int y)
 {
-  keyS[key] = false;
+    keyS[key] = false;
 }
 
 /*
-Reads the keyboard state and updates
-the simulation state*/
+  Reads the keyboard state and updates
+  the simulation state*/
 void keyboard()
 {
     if(keyN[27])exit(0);
     if(keyN['c'] || keyN['C'])
-    {
-        redraw=true;
-        currCamera=(currCamera+1)%cameras.size();
-        keyN['c'] = keyN['C'] = false;
-    }
+	{
+	    redraw=true;
+	    currCamera=(currCamera+1)%cameras.size();
+	    keyN['c'] = keyN['C'] = false;
+	}
 }
 
 
 /*
-    Cast a ray and return the color of the intersected object
+  Cast a ray and return the color of the intersected object
 */
 Color castRay(Ray ray, int recursive, double &dst)
 {
-	 //Increase the ray counter
+    //Increase the ray counter
     nrays++;
 
     //Was there an intersection?
@@ -128,16 +128,17 @@ Color castRay(Ray ray, int recursive, double &dst)
     
     //Check the nearest object intersected by the ray
     for(int i = 0; i < objects.size(); ++i)
-    {
-        t = objects[i]->rayIntersection(ray);
-        //We had an intersection!!
-        if(t > 0 && t < mint)
-        {
-            mint = t;
-            intersect = true;
-            o = objects[i];
-        }
-    }
+	{
+	    t = objects[i]->rayIntersection(ray);
+	    
+	    //We had an intersection!!
+	    if(t > 0 && t < mint)
+		{
+		    mint = t;
+		    intersect = true;
+		    o = objects[i];
+		}
+	}
     //There wasn´t any intersection, we return the background color
     if(!intersect)
         return c;
@@ -157,98 +158,98 @@ Color castRay(Ray ray, int recursive, double &dst)
     
     //Local ilumination model, for each light source
     for(int i = 0; i < lights.size(); ++i, shadow = false)
-    {
-        Vector3 d = (lights[i].pos - p).normalize();
-        //Ray from the intersection point towards the light source
-        Ray ray2(p + d*eps, lights[i].pos);
-        //Now check if this object is receiving light
-        //t value where the light source is
-        double tt = ray2.getT(lights[i].pos);
-        for(int j = 0; !shadow && j < objects.size(); ++j)
-        {
-            t2 = objects[j]->rayIntersection(ray2);
-            //The object is in shadows
-            if(t2 > 0 && t2 <= tt)
-                shadow = true;
-        }
-        if(!shadow)
-        {
-            //Ambient color calculation, la = light ambient
-            Color la = lights[i].ambient;
-            c = c + la*oa;
+	{
+	    Vector3 d = (lights[i].pos - p).normalize();
+	    //Ray from the intersection point towards the light source
+	    Ray ray2(p + d*eps, lights[i].pos);
+	    //Now check if this object is receiving light
+	    //t value where the light source is
+	    double tt = ray2.getT(lights[i].pos);
+	    for(int j = 0; !shadow && j < objects.size(); ++j)
+		{
+		    t2 = objects[j]->rayIntersection(ray2);
+		    //The object is in shadows
+		    if(t2 > 0 && t2 <= tt)
+			shadow = true;
+		}
+	    if(!shadow)
+		{
+		    //Ambient color calculation, la = light ambient
+		    Color la = lights[i].ambient;
+		    c = c + la*oa;
             
-            //Diffuse color calculation, ld = light diffuse, od = object diffuse
-            Color ld = lights[i].diffuse;
-            Color od = (o->hasTex())?o->getColor(p):o->getMat().color*o->getMat().diff;
+		    //Diffuse color calculation, ld = light diffuse, od = object diffuse
+		    Color ld = lights[i].diffuse;
+		    Color od = (o->hasTex())?o->getColor(p):o->getMat().color*o->getMat().diff;
             
-            //dot is the dot product between the normal and the ray
-            double dot = norm.dot(ray2.getDir());
-            //double att = 100/(light.pos - p).magnitudeSquared();
-            double att = 1.0;
-            if(dot > 0)
-            {
-                c = c + ld*od*att*dot;
-                //Specular color calculation
-                Color ls = lights[i].specular;
-                Vector3 v = ray.getDir();
-                Vector3 l = ray2.getDir();
-                Vector3 r = l - norm*2*l.dot(norm);
-                double k = v.dot(r);
-                if(k > 0)
-                    c = c + ls*pow(k, 20.0)*o->getMat().spec;
-            }
-        }
-    }
+		    //dot is the dot product between the normal and the ray
+		    double dot = norm.dot(ray2.getDir());
+		    //double att = 100/(light.pos - p).magnitudeSquared();
+		    double att = 1.0;
+		    if(dot > 0)
+			{
+			    c = c + ld*od*att*dot;
+			    //Specular color calculation
+			    Color ls = lights[i].specular;
+			    Vector3 v = ray.getDir();
+			    Vector3 l = ray2.getDir();
+			    Vector3 r = l - norm*2*l.dot(norm);
+			    double k = v.dot(r);
+			    if(k > 0)
+				c = c + ls*pow(k, 20.0)*o->getMat().spec;
+			}
+		}
+	}
     
     //Calculates the reflection color
     double refl = o->getMat().refl;
     if(recursive < MAX_RECURSION && refl > 0.01)
-    {
-        Vector3 dir2 = (ray.getDir() - norm*2*(ray.getDir().dot(norm))).normalize();
-        Vector3 dest = p+dir2;
-        Ray ray3(p + dir2*eps, dest);
-        c2 = castRay(ray3, recursive+1, dist);
-    }
+	{
+	    Vector3 dir2 = (ray.getDir() - norm*2*(ray.getDir().dot(norm))).normalize();
+	    Vector3 dest = p+dir2;
+	    Ray ray3(p + dir2*eps, dest);
+	    c2 = castRay(ray3, recursive+1, dist);
+	}
     //Calculates the refraction color
     double refr = o->getMat().refr;
     if(recursive < MAX_RECURSION && refr > 0.01)
-    {
-        double index = 1.0;
-        bool internal = false;
-        //Check if the ray is inside the object
-        if(o->isInside(ray.getOrigin()))internal = true;
+	{
+	    double index = 1.0;
+	    bool internal = false;
+	    //Check if the ray is inside the object
+	    if(o->isInside(ray.getOrigin()))internal = true;
 
-        double rIndex = o->getMat().rIndex;
-        double n = index/rIndex;
-        if(internal)n = 1.0/n;
+	    double rIndex = o->getMat().rIndex;
+	    double n = index/rIndex;
+	    if(internal)n = 1.0/n;
 
-        double cosI;
-        if(internal)cosI = (-norm).dot(ray.getDir());
-        else cosI = (norm).dot(ray.getDir());
-        double sinT2 = n*n*(1.0 - cosI * cosI);
+	    double cosI;
+	    if(internal)cosI = (-norm).dot(ray.getDir());
+	    else cosI = (norm).dot(ray.getDir());
+	    double sinT2 = n*n*(1.0 - cosI * cosI);
 
-        Vector3 dir3;
-        //Total internal reflection
-        if(sinT2 > 1.0)
-        {
-            dir3 = ray.getDir() - (-norm)*2*cosI;
-        }
-        else
-        {
-            if(internal)
-                dir3 = ray.getDir()*n - (-norm)*(n*cosI + sqrt(1.0 - sinT2));
-            else
-                dir3 = ray.getDir()*n - norm*(n*cosI + sqrt(1.0 - sinT2));
-        }
+	    Vector3 dir3;
+	    //Total internal reflection
+	    if(sinT2 > 1.0)
+		{
+		    dir3 = ray.getDir() - (-norm)*2*cosI;
+		}
+	    else
+		{
+		    if(internal)
+			dir3 = ray.getDir()*n - (-norm)*(n*cosI + sqrt(1.0 - sinT2));
+		    else
+			dir3 = ray.getDir()*n - norm*(n*cosI + sqrt(1.0 - sinT2));
+		}
  
-        Vector3 dest2 = p+dir3;
-        Ray ray4(p+dir3*eps, dest2);
-        c3 = castRay(ray4, recursive+1, dist);
-        //Apply beer's law
-        if(!internal)
-            c3 = c3*exp(-dist*0.075);
+	    Vector3 dest2 = p+dir3;
+	    Ray ray4(p+dir3*eps, dest2);
+	    c3 = castRay(ray4, recursive+1, dist);
+	    //Apply beer's law
+	    if(!internal)
+		c3 = c3*exp(-dist*0.075);
         
-    }
+	}
     
     //Adds the three colors together
     c = c+c2*refl+c3*refr;
@@ -258,44 +259,45 @@ Color castRay(Ray ray, int recursive, double &dst)
 void draw()
 {
     //The scene doesn't need to be redrawn
-    if(!redraw)return;
+    if(!redraw) return;
 
     glClear(GL_COLOR_BUFFER_BIT);
     glutSwapBuffers();
     
-	//Current time
+    //Current time
     timer.start();
     double start = timer.getElapsedTime();
 
     glRasterPos2f(0.0,0.0);
-    //Calculates all the rays
+    
+    //Calculates all the rays for every pixel in the scene
     for(int i = 0; i < height; ++i)
-    {
-        for(int j = 0; j < width; ++j)
-        {
-            Ray ray = cameras[currCamera].getRay(j, i);
-            double dist;
-            pixels[i*width + j] = castRay(ray, 1, dist);
-        }
-    }
+	{
+	    for(int j = 0; j < width; ++j)
+		{
+		    Ray ray = cameras[currCamera].getRay(j, i);
+		    double dist;
+		    pixels[i*width + j] = castRay(ray, 1, dist);
+		}
+	}
     glDrawPixels(width,height,GL_RGB,GL_FLOAT,pixels); 
     glutSwapBuffers();
 
-	//Final time
+    //Final time
     double finish = timer.getElapsedTime();
 
     //Set the window title
-    double t = (finish-start)/1000000;
+    double t = (finish-start)/1e6;
     stringstream ss;
     ss << "Width: " << width;
-    ss << "Height: "<< height;
+    ss << " Height: "<< height;
     ss << " Number of primitives: " << objects.size();
     ss << " Rays casted: " << nrays;
     ss << " Render time: " << t << "s";
     glutSetWindowTitle(ss.str().c_str());
     
     redraw = false;
-	nrays = 0;
+    nrays = 0;
     timer.stop();
 }
 
@@ -306,7 +308,7 @@ void update()
 }
 
 /*
-Handles the resize events
+  Handles the resize events
 */
 void resize(int w, int h)
 {
@@ -326,17 +328,17 @@ void resize(int w, int h)
     gluOrtho2D(0.0,(GLfloat)width, 0.0,(GLfloat)height);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
     redraw = true;
 }
 
 
 /*
-    Initializes some stuff
+  Initializes some stuff
 */
 void init()
 {
     pixels = new Color[width*height];
+    
     //Resets the pixels
     memset(pixels, 0, sizeof(GLfloat)*3*width*height);
 
@@ -347,6 +349,7 @@ void init()
                              Vector3(0,0,-10), Vector3(0,1,0)));
     cameras.push_back(Camera(PI/4, (double)width, (double)height, Vector3(25,0,-10), 
                              Vector3(0,0,-10), Vector3(0,1,0)));
+    
     currCamera = 0;
 
     //SET 1
@@ -361,7 +364,7 @@ void init()
                                  Material(Color(1.0,1.0,1.0), 0.0, 0.1, 1, 0.0, 1.2)));
 
     
-    //Add a wallx
+    //Add a wall
     objects.push_back(new Wall(Vector3(-7.0f, -5.0f, -17.0f), Vector3(7.0f, -5.0f, -5.0f), 
                                Vector3(-7.0f, -5.0f, -5.0f), 
                                Material(Color(0,0,0.0), 0.7, 0.4, 0.4, 0.7, 1.2),
@@ -380,18 +383,18 @@ void init()
     lights.push_back(Light(Vector3(5, 1.0, 3.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.8f), Color(0.6f, 0.6f, 0.8f), GLOBAL));
     gAmbient = Color(0.00, 0.00, 0.00);
 
-	nrays = 0;
+    nrays = 0;
 }
 
 /*
-Initializes OpenGL|
+  Initializes OpenGL|
 */
 void initGl()
 {
     glShadeModel (GL_SMOOTH);
     glEnable(GL_CULL_FACE);
     
-    //Resets the matrices. We don´ta want any transormations
+    //Resets the matrices. We don´t want any transformations
     //So we created an orthographic matrix with the size of the screen
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
