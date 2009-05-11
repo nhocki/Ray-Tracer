@@ -25,6 +25,7 @@
 #include "math/Ray.h"
 #include "objects/Sphere.h"
 #include "objects/Wall.h"
+#include "objects/Cylinder.h"
 #include "Util/Color.h"
 #include "Util/Texture.h"
 #include "Util/Light.h"
@@ -318,6 +319,11 @@ void resize(int w, int h)
         h = 1;
         
     width = w, height = h;
+
+    //Updates the cameras
+    for(int i = 0; i < cameras.size(); ++i)
+        cameras[i].changeDim(width, height);
+
     pixels = new Color[width*height];
     memset(pixels, 0, sizeof(GLfloat)*3*width*height);
   
@@ -362,6 +368,9 @@ void init()
                                  Material(Color(1.0,1.0,0.0), 0.4, 0.7, 0.8, 0.0, 1.2)));
     objects.push_back(new Sphere(0.8, Vector3(2, -4.2, -11), 
                                  Material(Color(1.0,1.0,1.0), 0.0, 0.1, 1, 0.0, 1.2)));
+
+    objects.push_back(new Cylinder(0.8, Vector3(5, 3, -7), Vector3(5, -1, -7), 
+                                 Material(Color(0.5,0.5,1.0), 0.7, 0.7, 0.3, 0.0, 1.2)));
 
     
     //Add a wall

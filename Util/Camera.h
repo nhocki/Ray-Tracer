@@ -15,9 +15,12 @@ class Camera
     //Screen width and height, and virtual plane width and height
     double width, height, vw, vh;
 
+    void setUp(void);
+
   public:
-    Camera();
+    Camera(void);
     Camera(double fovx, double width, double height, Vector3 pos, Vector3 lookAt, Vector3 up);
+    void changeDim(double width, double height);
     Ray getRay(double x, double y);
 };
 

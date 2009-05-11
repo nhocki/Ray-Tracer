@@ -16,12 +16,25 @@ Camera::Camera(double fovx, double width, double height, Vector3 pos, Vector3 lo
     w = (lookAt - pos).normalize();
     u = (w.cross(v)).normalize();
 
+    setUp();
+}
+
+void Camera::setUp()
+{
     Vector3 dest = pos + w*dist;
 
     //View rectangle calculation
     vw = dist*tan(fovx/2);
     vh = vw*(height/width);
     c = dest + (-u)*vw + (-v)*vh;
+}
+
+void Camera::changeDim(double width, double height)
+{
+    Camera::width = width;
+    Camera::height = height;
+
+    setUp();
 }
 
 /*

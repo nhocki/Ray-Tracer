@@ -36,8 +36,11 @@ double Sphere::rayIntersection(Ray ray)
     double t1 = (-B + sqrt(discr))/(2*A);
     double t2 = (-B - sqrt(discr))/(2*A);
     
-    //Return the smallest t, because it was the first intersection
-    return (t1 < t2)?t1:t2;
+    double t = (t1 < t2)?t1:t2;
+    if(t < 0)
+        t = (t1 > t2)?t1:t2;
+    //Return the smallest t greater than 0, because it was the first intersection
+    return t;
 }
 
 bool Sphere::isInside(Vector3 point)
