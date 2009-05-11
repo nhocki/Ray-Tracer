@@ -13,12 +13,12 @@ class Cylinder :public Object
     Cylinder(double r, Vector3 a, Vector3 b, Material mat, bool emmit=false);
 
     //Ray intersection
-    double rayIntersection(Ray ray);
+    double rayIntersection(Ray &ray);
     //Is the point inside
-    bool isInside(Vector3 point);
+    bool isInside(Vector3 &point);
     //Getters
-    Vector3 getNorm(Vector3 p);
-    Color getColor(Vector3 point);
+    Vector3 getNorm(Vector3 &p);
+    Color getColor(Vector3 &point);
     double getR(void);
 };
 

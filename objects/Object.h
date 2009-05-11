@@ -37,14 +37,14 @@ class Object
     Object();
     Object(Vector3 pos, Material mat, bool emmit=false);
     Object(Vector3 pos, Material mat, Texture tex, bool emmit=false);
-    virtual double rayIntersection(Ray ray)=0;
-    virtual Vector3 getNorm(Vector3 p)=0;
-    virtual bool isInside(Vector3 point)=0;
+    virtual double rayIntersection(Ray &ray)=0;
+    virtual Vector3 getNorm(Vector3 &p)=0;
+    virtual bool isInside(Vector3 &point)=0;
     
     //texture
     Texture getTex(void);
     bool hasTex(void);
-    virtual Color getColor(Vector3 point)=0;
+    virtual Color getColor(Vector3 &point)=0;
     
     //Getters
     Vector3 getPos(void);

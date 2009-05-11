@@ -18,10 +18,10 @@ public:
     Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, Texture tex, bool emit=false);
     
     //Is the point inside
-    bool isInside(Vector3 point);
+    bool isInside(Vector3 &point);
     
     //Getters
-    Vector3 getNorm(Vector3 p);
+    Vector3 getNorm(Vector3 &p);
     Vector3 getMin(void);
     Vector3 getMax(void);
     double getA(void);
@@ -29,8 +29,8 @@ public:
     double getC(void);
     double getD(void);
     
-    Color getColor(Vector3 point);
+    Color getColor(Vector3 &point);
     
-    double rayIntersection(Ray ray);
+    double rayIntersection(Ray &ray);
 };
 #endif

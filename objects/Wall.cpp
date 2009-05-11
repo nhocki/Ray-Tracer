@@ -41,15 +41,17 @@ double Wall::getB(void){return b;}
 double Wall::getC(void){return c;}
 double Wall::getD(void){return d;}
 
-Vector3 Wall::getNorm(Vector3 p)
+Vector3 Wall::getNorm(Vector3 &p)
 {
     Vector3 n(a,b,c);
     n.normalize();
     return n;
 }
 
-//Is the point inside
-bool Wall::isInside(Vector3 point)
+/*
+  A point wiil never be inside a plane
+ */
+bool Wall::isInside(Vector3 &point)
 {
     return false;
 }
@@ -57,7 +59,7 @@ bool Wall::isInside(Vector3 point)
 /* Gets the color in the specified object point
  * Used for textures only
  */
-Color Wall::getColor(Vector3 p)
+Color Wall::getColor(Vector3 &p)
 {
     return tex.getColor((p[0]-min[0])/14, (p[2]-min[2])/12);
 }
@@ -66,10 +68,9 @@ Color Wall::getColor(Vector3 p)
     Intersection between a ray and a plane
     If there is no intersection it returns -1
 */
-double Wall::rayIntersection(Ray ray)
+double Wall::rayIntersection(Ray &ray)
 {
     Vector3 n(a,b,c);
-    n;
     double dot = n.dot(ray.getDir());
     if(dot >= 0)return -1;
     

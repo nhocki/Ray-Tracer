@@ -21,7 +21,7 @@ Cylinder::Cylinder(double r, Vector3 a, Vector3 b, Material mat, bool emmit)
     Returns the t value where the ray intersects the cylinder
     If there is no intersection, it returns -1
 */
-double Cylinder::rayIntersection(Ray ray)
+double Cylinder::rayIntersection(Ray &ray)
 {
     Vector3 AB = (b - a);
     Vector3 AO = (ray.getOrigin() - a);
@@ -49,14 +49,14 @@ double Cylinder::rayIntersection(Ray ray)
     return t;
 }
 
-bool Cylinder::isInside(Vector3 point)
+bool Cylinder::isInside(Vector3 &point)
 {
     double dist = (point - pos).magnitudeSquared();
     return (dist <= r*r);
 }
 
 /* Getters */
-Vector3 Cylinder::getNorm(Vector3 p)
+Vector3 Cylinder::getNorm(Vector3 &p)
 {
     Vector3 n = Vector3(p[0]-pos[0], 0, p[2]-pos[2]).normalize();
     return n;
@@ -70,7 +70,7 @@ double Cylinder::getR()
 /* Gets the color in the specified object point
  * USED FOR TEXTURES ONLY
  */
-Color Cylinder::getColor(Vector3 point)
+Color Cylinder::getColor(Vector3 &point)
 {
     return Color(0,0,0);
 }

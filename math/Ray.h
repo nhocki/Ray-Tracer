@@ -10,7 +10,7 @@ class Ray
         Vector3 origin, dir;
 
     public:
-        Ray(Vector3 origin, Vector3 dest);
+        Ray(Vector3 origin, Vector3 dir);
         Vector3 getOrigin(void);
         Vector3 getDir(void);
         Vector3 getnnDir(void);

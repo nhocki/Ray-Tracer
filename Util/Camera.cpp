@@ -43,6 +43,6 @@ void Camera::changeDim(double width, double height)
  */
 Ray Camera::getRay(double x, double y)
 {
-    Vector3 dest = c + u*2*vw*x/width + v*2*vh*y/height;
-    return Ray(pos, dest);
+    Vector3 dir = ((c + u*2*vw*x/width + v*2*vh*y/height) - pos).normalize();
+    return Ray(pos, dir);
 }

@@ -1,10 +1,10 @@
 #include "Ray.h"
 
 /* Contructor */
-Ray::Ray(Vector3 origin, Vector3 dest)
+Ray::Ray(Vector3 origin, Vector3 dir)
 {
     Ray::origin = origin;
-    Ray::dir = (dest - origin).normalize();
+    Ray::dir = dir;
 }
 
 /*

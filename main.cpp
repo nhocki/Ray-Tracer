@@ -162,7 +162,7 @@ Color castRay(Ray ray, int recursive, double &dst)
 	{
 	    Vector3 d = (lights[i].pos - p).normalize();
 	    //Ray from the intersection point towards the light source
-	    Ray ray2(p + d*eps, lights[i].pos);
+        Ray ray2(p + d*eps, d);
 	    //Now check if this object is receiving light
 	    //t value where the light source is
 	    double tt = ray2.getT(lights[i].pos);
@@ -171,8 +171,11 @@ Color castRay(Ray ray, int recursive, double &dst)
 		    t2 = objects[j]->rayIntersection(ray2);
 		    //The object is in shadows
 		    if(t2 > 0 && t2 <= tt)
-			shadow = true;
-		}
+            {
+                shadow = true;
+                break;
+            }
+		}   
 	    if(!shadow)
 		{
 		    //Ambient color calculation, la = light ambient
@@ -185,7 +188,7 @@ Color castRay(Ray ray, int recursive, double &dst)
             
 		    //dot is the dot product between the normal and the ray
 		    double dot = norm.dot(ray2.getDir());
-		    //double att = 100/(light.pos - p).magnitudeSquared();
+		    //double att = 200/(lights[i].pos - p).magnitudeSquared();
 		    double att = 1.0;
 		    if(dot > 0)
 			{
@@ -197,7 +200,7 @@ Color castRay(Ray ray, int recursive, double &dst)
 			    Vector3 r = l - norm*2*l.dot(norm);
 			    double k = v.dot(r);
 			    if(k > 0)
-				c = c + ls*pow(k, 20.0)*o->getMat().spec;
+                    c = c + ls*pow(k, 20.0)*o->getMat().spec;
 			}
 		}
 	}
@@ -206,9 +209,8 @@ Color castRay(Ray ray, int recursive, double &dst)
     double refl = o->getMat().refl;
     if(recursive < MAX_RECURSION && refl > 0.01)
 	{
-	    Vector3 dir2 = (ray.getDir() - norm*2*(ray.getDir().dot(norm))).normalize();
-	    Vector3 dest = p+dir2;
-	    Ray ray3(p + dir2*eps, dest);
+	    Vector3 dir2 = (ray.getDir() - norm*2*(ray.getDir().dot(norm)));
+        Ray ray3(p+dir2*eps, dir2);
 	    c2 = castRay(ray3, recursive+1, dist);
 	}
     //Calculates the refraction color
@@ -216,41 +218,24 @@ Color castRay(Ray ray, int recursive, double &dst)
     if(recursive < MAX_RECURSION && refr > 0.01)
 	{
 	    double index = 1.0;
-	    bool internal = false;
-	    //Check if the ray is inside the object
-	    if(o->isInside(ray.getOrigin()))internal = true;
 
 	    double rIndex = o->getMat().rIndex;
 	    double n = index/rIndex;
-	    if(internal)n = 1.0/n;
 
-	    double cosI;
-	    if(internal)cosI = (-norm).dot(ray.getDir());
-	    else cosI = (norm).dot(ray.getDir());
+	    double cosI = (norm).dot(ray.getDir());
 	    double sinT2 = n*n*(1.0 - cosI * cosI);
 
 	    Vector3 dir3;
 	    //Total internal reflection
 	    if(sinT2 > 1.0)
-		{
 		    dir3 = ray.getDir() - (-norm)*2*cosI;
-		}
 	    else
-		{
-		    if(internal)
-			dir3 = ray.getDir()*n - (-norm)*(n*cosI + sqrt(1.0 - sinT2));
-		    else
-			dir3 = ray.getDir()*n - norm*(n*cosI + sqrt(1.0 - sinT2));
-		}
- 
-	    Vector3 dest2 = p+dir3;
-	    Ray ray4(p+dir3*eps, dest2);
+            dir3 = ray.getDir()*n - (norm)*(n*cosI + sqrt(1.0 - sinT2));
+
+        Ray ray4(p+dir3*eps, dir3);
 	    c3 = castRay(ray4, recursive+1, dist);
-	    //Apply beer's law
-	    if(!internal)
-		c3 = c3*exp(-dist*0.075);
-        
-	}
+		c3 = c3*exp(-dist*0.065);
+    }
     
     //Adds the three colors together
     c = c+c2*refl+c3*refr;
@@ -264,12 +249,12 @@ void draw()
 
     glClear(GL_COLOR_BUFFER_BIT);
     glutSwapBuffers();
-    
+
+    glRasterPos2f(0.0,0.0);
+
     //Current time
     timer.start();
     double start = timer.getElapsedTime();
-
-    glRasterPos2f(0.0,0.0);
     
     //Calculates all the rays for every pixel in the scene
     for(int i = 0; i < height; ++i)
@@ -281,11 +266,12 @@ void draw()
 		    pixels[i*width + j] = castRay(ray, 1, dist);
 		}
 	}
-    glDrawPixels(width,height,GL_RGB,GL_FLOAT,pixels); 
-    glutSwapBuffers();
 
     //Final time
     double finish = timer.getElapsedTime();
+
+    glDrawPixels(width,height,GL_RGB,GL_FLOAT,pixels); 
+    glutSwapBuffers();
 
     //Set the window title
     double t = (finish-start)/1e6;
@@ -302,6 +288,9 @@ void draw()
     timer.stop();
 }
 
+/*
+  Check for user input
+ */
 void update()
 {
     keyboard();
