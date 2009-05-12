@@ -1,16 +1,15 @@
 #include "Wall.h"
-#include <iostream>
-using namespace std;
 Wall::Wall()
 {
     //Wall(Vector3(-20.0f, 0.0f, 20.0f), Vector3(20.0f, 0.0f, -20.0f), Vector3(20.0f, 0.0f, 20.0f), Color(1,1,1), Color(1,1,1), Color(1,1,1), 1);
 }
 
-Wall:: Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, bool emmit)
-    :Object((min+max)/2, mat, emmit)
+Wall:: Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, bool em, bool inf)
+    :Object((min+max)/2, mat, em)
 {
     Wall::min = min;
     Wall::max = max;
+    infinite = inf;
 
     Vector3 u = min - other;
     Vector3 v = max - other;
@@ -20,11 +19,13 @@ Wall:: Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, bool emmit)
     d = -(a*min[0] + b*min[1] + c*min[2]);
 }
 
-Wall:: Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, Texture tex, bool emmit)
-    :Object((min+max)/2, mat, tex, emmit)
+Wall:: Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, 
+            Texture tex, bool em, bool inf)
+    :Object((min+max)/2, mat, tex, em)
 {
     Wall::min = min;
     Wall::max = max;
+    infinite = infinite;
 
     Vector3 u = min - other;
     Vector3 v = max - other;
@@ -69,7 +70,7 @@ Color Wall::getColor(Vector3 &p)
     If there is no intersection it returns -1
 */
 double Wall::rayIntersection(Ray &ray)
-{
+{   
     Vector3 n(a,b,c);
     double dot = n.dot(ray.getDir());
     if(dot >= 0)return -1;
@@ -78,7 +79,7 @@ double Wall::rayIntersection(Ray &ray)
     
     Vector3 p = ray.getPoint(t);
 
-    if(p >= min && p <= max)
+    if(infinite || (p >= min && p <= max))
         return t;
     
     return -1;

@@ -108,7 +108,7 @@ Color castRay(Ray ray, int recursive, double &dst)
 {
     //Increase the ray counter
     nrays++;
-
+    
     //Was there an intersection?
     bool intersect = false;
     //Is this object receiving light?
@@ -116,7 +116,7 @@ Color castRay(Ray ray, int recursive, double &dst)
     
     //Main color, reflection and refraction color
     Color c(0.0, 0.0, 0.0), c2(0.0, 0.0, 0.0), c3(0.0, 0.0, 0.0);
-    
+
     //Pointer to the interseted object
     Object *o;
 
@@ -200,7 +200,7 @@ Color castRay(Ray ray, int recursive, double &dst)
 			    Vector3 r = l - norm*2*l.dot(norm);
 			    double k = v.dot(r);
 			    if(k > 0)
-                    c = c + ls*pow(k, 20.0)*o->getMat().spec;
+                c = c + ls*pow(k, 20.0)*o->getMat().spec;
 			}
 		}
 	}
@@ -349,7 +349,7 @@ void init()
 
     //SET 1
     //Add some spheres
-    objects.push_back(new Sphere(1, Vector3(-3, -4, -11), 
+    /*objects.push_back(new Sphere(1, Vector3(-3, -4, -11), 
                                  Material(Color(1.0,0,0), 0.95, 0.8, 0.05, 0.0, 1.2)));
     objects.push_back(new Sphere(1.1, Vector3(-1.2, -3.5, -7), 
                                  Material(Color(0,0,1.0), 0.0, 0.3, 0.0, 1.0, 1.51714)));
@@ -375,11 +375,41 @@ void init()
                                Vector3(-7.5f, 5.0f, -18.0f),
                                Material(Color(0.3,0.3,0.7), 0.7, 0.4, 0.6, 0.5, 1.2)));
 
-    
-    //Lights, and global ambient
+   //Lights, and global ambient
     lights.push_back(Light(Vector3(-5, 3.0, 2.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.6f), Color(0.7f, 0.7f, 0.7f), GLOBAL));
-    lights.push_back(Light(Vector3(5, 1.0, 3.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.8f), Color(0.6f, 0.6f, 0.8f), GLOBAL));
-    gAmbient = Color(0.00, 0.00, 0.00);
+    lights.push_back(Light(Vector3(5, 1.0, 3.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.8f), Color(0.6f, 0.6f, 0.8f), GLOBAL));*/
+    
+
+
+
+    /* Cornell Box */
+    objects.push_back(new Wall(Vector3(-2.0f, -2.0f, -2.0f), Vector3(2.0f, 2.0f, -2.0f), 
+                               Vector3(2.0f, -2.0f, -2.0f), Material(Color(0.8,0.8,0.8), 
+                               1.0, 0.35, 0.0, 0.0, 1.2), false, true));
+    objects.push_back(new Wall(Vector3(-2.0f, -2.0f, -2.0f), Vector3(-2.0f, 2.0f, 2.0f), 
+                               Vector3(-2.0f, 2.0f, -2.0f), Material(Color(1,0.0,0.0), 
+                               1.0, 0.35, 0.0, 0.0, 1.2), false, true));
+    objects.push_back(new Wall(Vector3(2.0f, -2.0f, -2.0f), Vector3(2.0f, 2.0f, 2.0f), 
+                               Vector3(2.0f, -2.0f, 2.0f), Material(Color(0.0,1,0.0), 
+                               1.0, 0.35, 0.0, 0.0, 1.2), false, true));
+    objects.push_back(new Wall(Vector3(-2.0f, 2.0f, -2.0f), Vector3(2.0f, 2.0f, 2.0f), 
+                               Vector3(2.0f, 2.0f, -2.0f), Material(Color(0.8,0.8,0.8), 
+                               1.0, 0.35, 0.0, 0.0, 1.2), false, true));
+    objects.push_back(new Wall(Vector3(-2.0f, -2.0f, -2.0f), Vector3(2.0f, -2.0f, 2.0f), 
+                               Vector3(-2.0f, -2.0f, 2.0f), Material(Color(0.8,0.8,0.8), 
+                               1.0, 0.35, 0.0, 0.0, 1.2), false, true));
+
+    objects.push_back(new Sphere(0.6, Vector3(-1, -1.4, 0), 
+                                 Material(Color(0.0,0.0,1.0), 0.0, 0.1, 1.0, 0.0, 1.2)));
+
+    objects.push_back(new Sphere(0.5, Vector3(1, 0, 1), 
+                                 Material(Color(0.0,0.0,1.0), 1.0, 0.7, 0.0, 0.0, 1.2)));
+    
+    lights.push_back(Light(Vector3(0, 1, 2), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.8f), Color(0.6f, 0.6f, 0.8f), GLOBAL));
+
+
+    //THIS IS THE DEFAULT = COLOR(0,0,0); DO NOT CHANGE UNLESS NECESARY
+    gAmbient = Color(0.1, 0.1, 0.1);
 
     nrays = 0;
 }

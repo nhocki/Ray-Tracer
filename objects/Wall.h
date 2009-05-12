@@ -12,10 +12,13 @@ private:
     Vector3 min, max;
     //Plane Ecuation
     double a,b,c,d;
+    bool infinite;
 public:
     Wall(void);
-    Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, bool emmit=false);
-    Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, Texture tex, bool emit=false);
+    Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, 
+         bool emmit=false, bool infinite=false);
+    Wall(Vector3 min, Vector3 max, Vector3 other, Material mat, 
+         Texture tex, bool emit=false, bool infinite = false);
     
     //Is the point inside
     bool isInside(Vector3 &point);
