@@ -39,7 +39,7 @@ double Cylinder::rayIntersection(Ray &ray)
     double dotP2 = (-dir).dot(ray.getDir());
     if(dotP2 < 0)
     { 
-        double d2 = -(dir.dot(b));
+        double d2 = -((-dir).dot(b));
         double t2 = -(d2 + (-dir).dot(ray.getOrigin()))/dotP2;
         Vector3 p2 = ray.getPoint(t2);
 
@@ -93,13 +93,18 @@ Vector3 Cylinder::getNorm(Vector3 &p)
     //Check if the point is on the upper plane
     double d1 = -(dir.dot(a));
     if(fabs(dir.dot(p) + d1) <= eps)
-        return dir;
+        return (dir);
     //Check if the point is on the lower plane
-    double d2 = -(dir.dot(b));
+    double d2 = -((-dir).dot(b));
     if(fabs((-dir).dot(p) + d2) <= eps)
-        return -(dir);
+        return (-dir);
 
-    Vector3 n = Vector3(p[0]-pos[0], 0, p[2]-pos[2]).normalize();
+    //Find the normal vector to the plane formed by a, b and p
+    Vector3 perpendicular = (p-b).cross(dir);
+    //The cylinder direction cross this vector will give me the normal
+    return (dir.cross(perpendicular)).normalize();
+
+    Vector3 n = (Vector3(p[0]-pos[0], 0, p[2]-pos[2]).normalize()).normalize();
     return n;
 }
 
