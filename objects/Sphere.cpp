@@ -23,14 +23,14 @@ double Sphere::rayIntersection(Ray &ray)
     double lengthRTSC2 = RC.dot(RC);
       
     double cl = RC.dot(ray.getDir());
-    if (cl < 0 ) // behind the ray origin
+    if (cl < -0.0001) // behind the ray origin
         return -1;
     
     double halfCord2 = r*r - lengthRTSC2 + cl*cl; 
-    if(halfCord2 < 0) // no intersection
+    if(halfCord2 < -0.001) // no intersection
         return -1;
     
-        return cl - sqrt(halfCord2);
+    return cl - sqrt(halfCord2);
 }
 
 bool Sphere::isInside(Vector3 &point)

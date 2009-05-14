@@ -21,6 +21,7 @@
 #include <sstream>
 #include <climits> 
 
+#include "PhotonMap.h"
 #include "math/Vector3.h"
 #include "math/Ray.h"
 #include "objects/Sphere.h"
@@ -87,11 +88,38 @@ void keySUp(int key, int x, int y)
 }
 
 /*
+  Writes the image into a ppm file
+ */
+void writeImage()
+{
+    freopen("imagen.ppm","w",stdout);
+    printf("P3\n# Created by Alejandro Pelaez, Nicolas Hock Cristian Isaza\n");
+    printf("%d %d\n255\n", width, height);
+    for(int i = 0; i< height;++i)
+    {
+        for(int j = 0; j < width; ++j)
+        {
+            Color c = pixels[(height-i)*width+j];
+            printf("%.0f %.0f %.0f ",c.r*255, c.g*255, c.b*255);
+        }
+        puts("");
+    }
+}
+
+/*
   Reads the keyboard state and updates
   the simulation state*/
 void keyboard()
 {
     if(keyN[27])exit(0);
+
+    if(keyN['p'] || keyN['P'])
+    {
+        writeImage();
+        keyN['p']=false;
+        keyN['P']=false;
+    }
+
     if(keyN['c'] || keyN['C'])
 	{
 	    redraw=true;
@@ -99,7 +127,6 @@ void keyboard()
 	    keyN['c'] = keyN['C'] = false;
 	}
 }
-
 
 /*
   Cast a ray and return the color of the intersected object
@@ -188,8 +215,8 @@ Color castRay(Ray ray, int recursive, double &dst)
             
 		    //dot is the dot product between the normal and the ray
 		    double dot = norm.dot(ray2.getDir());
-		    //double att = 200/(lights[i].pos - p).magnitudeSquared();
-		    double att = 1.0;
+		    double att = 15/(lights[i].pos - p).magnitudeSquared();
+		    //double att = 1.0;
 		    if(dot > 0)
 			{
 			    c = c + ld*od*att*dot;
@@ -324,8 +351,7 @@ void resize(int w, int h)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     redraw = true;
-}
-
+}   
 
 /*
   Initializes some stuff
@@ -377,35 +403,35 @@ void init()
 
    //Lights, and global ambient
     lights.push_back(Light(Vector3(-5, 3.0, 2.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.6f), Color(0.7f, 0.7f, 0.7f), GLOBAL));
-    lights.push_back(Light(Vector3(5, 1.0, 3.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.8f), Color(0.6f, 0.6f, 0.8f), GLOBAL));*/
+    lights.push_back(Light(Vector3(5, 1.0, 3.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.8f), Color(0.6f, 0.6f, 0.8f), GLOBAL));
+    */
+
     
-
-
 
     /* Cornell Box */
     objects.push_back(new Wall(Vector3(-2.0f, -2.0f, -2.0f), Vector3(2.0f, 2.0f, -2.0f), 
                                Vector3(2.0f, -2.0f, -2.0f), Material(Color(0.8,0.8,0.8), 
-                               1.0, 0.35, 0.0, 0.0, 1.2), false, true));
+                               1.0, 0.1, 0.0, 0.0, 1.2), false, true));
     objects.push_back(new Wall(Vector3(-2.0f, -2.0f, -2.0f), Vector3(-2.0f, 2.0f, 2.0f), 
                                Vector3(-2.0f, 2.0f, -2.0f), Material(Color(1,0.0,0.0), 
-                               1.0, 0.35, 0.0, 0.0, 1.2), false, true));
+                               1.0, 0.1, 0.0, 0.0, 1.2), false, true));
     objects.push_back(new Wall(Vector3(2.0f, -2.0f, -2.0f), Vector3(2.0f, 2.0f, 2.0f), 
                                Vector3(2.0f, -2.0f, 2.0f), Material(Color(0.0,1,0.0), 
-                               1.0, 0.35, 0.0, 0.0, 1.2), false, true));
+                               1.0, 0.1, 0.0, 0.0, 1.2), false, true));
     objects.push_back(new Wall(Vector3(-2.0f, 2.0f, -2.0f), Vector3(2.0f, 2.0f, 2.0f), 
                                Vector3(2.0f, 2.0f, -2.0f), Material(Color(0.8,0.8,0.8), 
-                               1.0, 0.35, 0.0, 0.0, 1.2), false, true));
+                               1.0, 0.1, 0.0, 0.0, 1.2), false, true));
     objects.push_back(new Wall(Vector3(-2.0f, -2.0f, -2.0f), Vector3(2.0f, -2.0f, 2.0f), 
                                Vector3(-2.0f, -2.0f, 2.0f), Material(Color(0.8,0.8,0.8), 
-                               1.0, 0.35, 0.0, 0.0, 1.2), false, true));
+                               1.0, 0.1, 0.0, 0.0, 1.2), false, true));
 
-    objects.push_back(new Sphere(0.6, Vector3(-1, -1.4, 0), 
+    objects.push_back(new Sphere(0.6, Vector3(-0.7, -1.4, 0), 
                                  Material(Color(0.0,0.0,1.0), 0.0, 0.1, 1.0, 0.0, 1.2)));
 
     objects.push_back(new Sphere(0.5, Vector3(1, 0, 1), 
                                  Material(Color(0.0,0.0,1.0), 1.0, 0.7, 0.0, 0.0, 1.2)));
     
-    lights.push_back(Light(Vector3(0, 1, 2), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.8f), Color(0.6f, 0.6f, 0.8f), GLOBAL));
+                                 lights.push_back(Light(Vector3(0, 1, 2), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.8f), Color(0.6f, 0.6f, 0.8f), GLOBAL));
 
 
     //THIS IS THE DEFAULT = COLOR(0,0,0); DO NOT CHANGE UNLESS NECESARY

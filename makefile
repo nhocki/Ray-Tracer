@@ -8,10 +8,11 @@
 CPP  = g++
 CC   = gcc
 RES  = 
-OBJ  = main.o math/Vector3.o math/Ray.o objects/Sphere.o objects/Object.o objects/Cylinder.o Util/Color.o Util/Camera.o Util/Light.o objects/Wall.o Util/Texture.o Util/Timer.o
-LINKOBJ  = main.o math/Vector3.o math/Ray.o objects/Sphere.o objects/Object.o objects/Cylinder.o Util/Color.o Util/Camera.o Util/Light.o objects/Wall.o Util/Texture.o Util/Timer.o
+OBJ  = main.o PhotonMap.o math/Vector3.o math/Ray.o objects/Sphere.o objects/Object.o objects/Cylinder.o Util/Color.o Util/Camera.o Util/Light.o objects/Wall.o Util/Texture.o Util/Timer.o
+LINKOBJ  = main.o PhotonMap.o math/Vector3.o math/Ray.o objects/Sphere.o objects/Object.o objects/Cylinder.o Util/Color.o Util/Camera.o Util/Light.o objects/Wall.o Util/Texture.o Util/Timer.o
 LIBS =  -lglut
 BIN  = "RayTracer"
+CFLAGS =  -O3
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
@@ -22,40 +23,42 @@ clean: clean-custom
 	${RM} $(OBJ) $(BIN)
 
 $(BIN): $(OBJ)
-	$(CPP) $(LINKOBJ) -o "RayTracer" $(LIBS)
+	$(CPP) $(CFLAGS) $(LINKOBJ) -o "RayTracer" $(LIBS)
 
 main.o: main.cpp
-	$(CPP) -c main.cpp -o main.o
+	$(CPP) $(CFLAGS) -c main.cpp -o main.o
+PhotonMap.o: PhotonMap.cpp
+	$(CPP) $(CFLAGS) -c PhotonMap.cpp -o PhotonMap.o
 
 math/Vector3.o: math/Vector3.cpp
-	$(CPP) -c math/Vector3.cpp -o math/Vector3.o 
+	$(CPP) $(CFLAGS) -c math/Vector3.cpp -o math/Vector3.o 
 
 math/Ray.o: math/Ray.cpp
-	$(CPP) -c math/Ray.cpp -o math/Ray.o 
+	$(CPP) $(CFLAGS) -c math/Ray.cpp -o math/Ray.o 
 
 objects/Sphere.o: objects/Sphere.cpp
-	$(CPP) -c objects/Sphere.cpp -o objects/Sphere.o 
+	$(CPP) $(CFLAGS) -c objects/Sphere.cpp -o objects/Sphere.o 
 
 objects/Object.o: objects/Object.cpp
-	$(CPP) -c objects/Object.cpp -o objects/Object.o 
+	$(CPP) $(CFLAGS) -c objects/Object.cpp -o objects/Object.o 
 
 objects/Cylinder.o: objects/Cylinder.cpp
-	$(CPP) -c objects/Cylinder.cpp -o objects/Cylinder.o
+	$(CPP) $(CFLAGS) -c objects/Cylinder.cpp -o objects/Cylinder.o
 
 Util/Color.o: Util/Color.cpp
-	$(CPP) -c Util/Color.cpp -o Util/Color.o 
+	$(CPP) $(CFLAGS) -c Util/Color.cpp -o Util/Color.o 
 
 Util/Camera.o: Util/Camera.cpp
-	$(CPP) -c Util/Camera.cpp -o Util/Camera.o 
+	$(CPP) $(CFLAGS) -c Util/Camera.cpp -o Util/Camera.o 
 
 Util/Light.o: Util/Light.cpp
-	$(CPP) -c Util/Light.cpp -o Util/Light.o 
+	$(CPP) $(CFLAGS) -c Util/Light.cpp -o Util/Light.o 
 
 objects/Wall.o: objects/Wall.cpp
-	$(CPP) -c objects/Wall.cpp -o objects/Wall.o
+	$(CPP) $(CFLAGS) -c objects/Wall.cpp -o objects/Wall.o
 
 Util/Texture.o: Util/Texture.cpp
-	$(CPP) -c Util/Texture.cpp -o Util/Texture.o
+	$(CPP) $(CFLAGS) -c Util/Texture.cpp -o Util/Texture.o
 
 Util/Timer.o: Util/Timer.cpp
-	$(CPP) -c Util/Timer.cpp -o Util/Timer.o
+	$(CPP) $(CFLAGS) -c Util/Timer.cpp -o Util/Timer.o
