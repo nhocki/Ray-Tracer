@@ -7,7 +7,7 @@ class Cylinder :public Object
 {
   private:
     double r;
-    Vector3 a, b;
+    Vector3 a, b, dir;
   public:
     Cylinder(void);
     Cylinder(double r, Vector3 a, Vector3 b, Material mat, bool emmit=false);

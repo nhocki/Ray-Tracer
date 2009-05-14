@@ -14,6 +14,7 @@ Cylinder::Cylinder(double r, Vector3 a, Vector3 b, Material mat, bool emmit)
     Cylinder::r = r;
     Cylinder::a = a;
     Cylinder::b = b;
+    Cylinder::dir = (a-b).normalize();
 }
 
 /* 
@@ -23,6 +24,30 @@ Cylinder::Cylinder(double r, Vector3 a, Vector3 b, Material mat, bool emmit)
 */
 double Cylinder::rayIntersection(Ray &ray)
 {
+    //Check the intersection with the upper plane
+    double dotP1 = dir.dot(ray.getDir());
+    if(dotP1 < 0)
+    {
+        double d1 = -(dir.dot(a));
+        double t1 = -(d1 + dir.dot(ray.getOrigin()))/dotP1;
+        Vector3 p1 = ray.getPoint(t1);
+
+        if((p1-a).magnitudeSquared() <= r*r)
+            return t1;
+    }
+    //Check the intersection with the lower plane
+    double dotP2 = (-dir).dot(ray.getDir());
+    if(dotP2 < 0)
+    { 
+        double d2 = -(dir.dot(b));
+        double t2 = -(d2 + (-dir).dot(ray.getOrigin()))/dotP2;
+        Vector3 p2 = ray.getPoint(t2);
+
+        if((p2-b).magnitudeSquared() <= r*r)
+            return t2;
+    }
+
+    //Check the intersection with the torso
     Vector3 AB = (b - a);
     Vector3 AO = (ray.getOrigin() - a);
     Vector3 AOxAB = (AO.cross(AB));
@@ -43,7 +68,14 @@ double Cylinder::rayIntersection(Ray &ray)
     if(t < 0)
         t = (t1 > t2)?t1:t2;
 
-
+    if(t>=0)
+    {
+        Vector3 point = ray.getPoint(t);
+        double dotA = (point-a).dot(dir);
+        double dotB = (point-b).dot(-dir);
+        if(dotA > 0 || dotB > 0)
+            t = -1;
+    }
 
     //Return the smallest t greater than 0, because it was the first intersection
     return t;
@@ -58,6 +90,15 @@ bool Cylinder::isInside(Vector3 &point)
 /* Getters */
 Vector3 Cylinder::getNorm(Vector3 &p)
 {
+    //Check if the point is on the upper plane
+    double d1 = -(dir.dot(a));
+    if(fabs(dir.dot(p) + d1) <= eps)
+        return dir;
+    //Check if the point is on the lower plane
+    double d2 = -(dir.dot(b));
+    if(fabs((-dir).dot(p) + d2) <= eps)
+        return -(dir);
+
     Vector3 n = Vector3(p[0]-pos[0], 0, p[2]-pos[2]).normalize();
     return n;
 }

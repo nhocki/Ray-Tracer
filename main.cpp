@@ -384,7 +384,7 @@ void init()
     objects.push_back(new Sphere(0.8, Vector3(2, -4.2, -11), 
                                  Material(Color(1.0,1.0,1.0), 0.0, 0.1, 1, 0.0, 1.2)));
 
-    objects.push_back(new Cylinder(0.8, Vector3(5, 3, -7), Vector3(5, -1, -7), 
+    objects.push_back(new Cylinder(0.8, Vector3(5, 0, -7), Vector3(5, -4, -9), 
                                  Material(Color(0.5,0.5,1.0), 0.7, 0.7, 0.3, 0.0, 1.2)));
 
     
@@ -403,8 +403,7 @@ void init()
 
    //Lights, and global ambient
     lights.push_back(Light(Vector3(-5, 3.0, 2.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.6f), Color(0.7f, 0.7f, 0.7f), GLOBAL));
-    lights.push_back(Light(Vector3(5, 1.0, 3.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.8f), Color(0.6f, 0.6f, 0.8f), GLOBAL));
-    */
+    lights.push_back(Light(Vector3(5, 1.0, 3.0), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.8f), Color(0.6f, 0.6f, 0.8f), GLOBAL));*/
 
     
 
@@ -430,6 +429,9 @@ void init()
 
     objects.push_back(new Sphere(0.5, Vector3(1, 0, 1), 
                                  Material(Color(0.0,0.0,1.0), 1.0, 0.7, 0.0, 0.0, 1.2)));
+
+    objects.push_back(new Cylinder(0.4, Vector3(0.6, -0.8, 1.5), Vector3(0.6, -2, 1.5), 
+                                 Material(Color(0.5,0.5,1.0), 1, 0.7, 0.0, 0.0, 1.2)));
     
                                  lights.push_back(Light(Vector3(0, 1, 2), Color(0.0, 0.0, 0.0), Color(0.6f, 0.6f, 0.8f), Color(0.6f, 0.6f, 0.8f), GLOBAL));
 
